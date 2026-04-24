@@ -405,9 +405,9 @@ function calculate() {
     statusHtml = `<div class="hunt-status even"><span class="status-icon">⚖️</span><div><p class="status-title">Hunt empatada</p><p class="status-sub">loot = waste — zerou exato</p></div></div>`;
   } else if (isLoss) {
     const lossAmt = Math.abs(netProfit);
-    statusHtml = `<div class="hunt-status loss"><span class="status-icon">💀</span><div><p class="status-title">Waste</p><p class="status-sub">prejuízo total de <br>${lossAmt.toLocaleString('pt-BR')} gp.</br></p></div></div>`;
+    statusHtml = `<div class="hunt-status loss"><span class="status-icon">💀</span><div><p class="status-title">Waste</p><p class="status-sub">prejuízo total de <b>${lossAmt.toLocaleString('pt-BR')} gp.</b></p></div></div>`;
   } else {
-    statusHtml = `<div class="hunt-status profit"><span class="status-icon">💰</span><div><p class="status-title">Profit</p><p class="status-sub">profit de <br>${netProfit.toLocaleString('pt-BR')} gp.</br></p></div></div>`;
+    statusHtml = `<div class="hunt-status profit"><span class="status-icon">💰</span><div><p class="status-title">Profit</p><p class="status-sub">profit de <b>${netProfit.toLocaleString('pt-BR')} gp.</b></p></div></div>`;
   }
 
   // ── summary metrics
@@ -499,8 +499,7 @@ function calculate() {
     html += `
       <div class="loss-note-box">
         <p>// <strong>hunt no negativo</strong> — não há transferências entre jogadores.<br>
-        Cada um arca com seu próprio prejuízo baseado em quanto gastou de waste<br>
-        vs. quanto recebeu de volta do loot total dividido igualmente.</p>
+        Cada um arca com seu próprio waste</p>
       </div>
     `;
   }
