@@ -375,7 +375,7 @@
 
     <footer>
       <div class="dot"></div>
-      feito por danillo tanigushi
+      feito por Danillo Tanigushi
     </footer>
   </div>
 
@@ -440,14 +440,14 @@
         return;
       }
 
-      const share = loot / valid.length;
       const totalWaste = valid.reduce((s, p) => s + (parseFloat(p.waste) || 0), 0);
-      const netProfit = loot - totalWaste;
+      const netProfit = loot - totalWaste; 
+      const share = netProfit / valid.length; 
 
-      const withBalance = valid.map(p => {
-        const waste = parseFloat(p.waste) || 0;
-        const balance = share - waste;
-        return { ...p, waste, share, balance };
+    const withBalance = valid.map(p => {
+      const waste = parseFloat(p.waste) || 0;
+      const balance = waste + share; 
+      return { ...p, waste, share, balance };
       });
 
       let html = `
