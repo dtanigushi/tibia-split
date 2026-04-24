@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tibia Loot Split</title>
+  <title>Tibia Hunt Calculator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,21 +11,28 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --surface2:  #21262d;
-      --surface3:  #30363d;
-      --border:    #30363d;
+      --bg:         #0d1117;
+      --surface:    #161b22;
+      --surface2:   #21262d;
+      --surface3:   #30363d;
+      --border:     #30363d;
       --border-dim: #21262d;
-      --text:      #e6edf3;
-      --text-muted:#8b949e;
-      --text-dim:  #6e7681;
-      --green:     #39d353;
-      --green-dim: #196c2e;
-      --green-bg:  rgba(57,211,83,0.08);
-      --green-glow:rgba(57,211,83,0.18);
-      --red:       #f85149;
-      --red-bg:    rgba(248,81,73,0.1);
+      --text:       #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim:   #6e7681;
+      --green:      #39d353;
+      --green-dim:  #196c2e;
+      --green-bg:   rgba(57,211,83,0.08);
+      --green-glow: rgba(57,211,83,0.18);
+      --red:        #f85149;
+      --red-dim:    #6e1a18;
+      --red-bg:     rgba(248,81,73,0.1);
+      --red-glow:   rgba(248,81,73,0.18);
+      --yellow:     #d29922;
+      --yellow-bg:  rgba(210,153,34,0.1);
+      --yellow-dim: #5a3e07;
+      --blue:       #58a6ff;
+      --blue-bg:    rgba(88,166,255,0.08);
       --mono: 'JetBrains Mono', monospace;
       --sans: 'Inter', sans-serif;
       --radius: 6px;
@@ -42,317 +49,210 @@
       padding: 56px 20px 80px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 540px;
-    }
+    .container { width: 100%; max-width: 560px; }
 
+    /* HEADER */
     header { margin-bottom: 44px; }
-
-    .logo-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
+    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .logo-icon {
       width: 28px; height: 28px;
       border: 1px solid var(--green);
       border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--mono);
-      font-size: 13px;
-      color: var(--green);
+      font-size: 13px; color: var(--green);
       box-shadow: 0 0 8px var(--green-glow);
     }
-
-    .logo-text {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-    }
-
+    .logo-text { font-family: var(--mono); font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; }
     .logo-text span { color: var(--green); }
+    h1 { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; line-height: 1.3; }
+    h1 em { font-style: normal; font-weight: 300; color: var(--text-muted); }
 
-    h1 {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.3;
-      letter-spacing: -0.02em;
+    /* TABS */
+    .tabs { display: flex; gap: 2px; margin-bottom: 32px; background: var(--surface2); border-radius: var(--radius); padding: 3px; border: 1px solid var(--border-dim); }
+    .tab-btn {
+      flex: 1; padding: 8px 12px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+      background: transparent; border: none; border-radius: 4px;
+      color: var(--text-dim); cursor: pointer; transition: all 0.15s;
     }
+    .tab-btn.active { background: var(--surface3); color: var(--text); }
+    .tab-btn:hover:not(.active) { color: var(--text-muted); }
 
-    h1 em {
-      font-style: normal;
-      font-weight: 300;
-      color: var(--text-muted);
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
+    /* SECTION LABELS */
     .section-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 10px;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
     }
 
+    /* INPUTS */
     .player-row {
-      display: grid;
-      grid-template-columns: 1fr 140px 34px;
-      gap: 6px;
-      margin-bottom: 6px;
-      align-items: center;
+      display: grid; grid-template-columns: 1fr 140px 34px;
+      gap: 6px; margin-bottom: 6px; align-items: center;
     }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-size: 13px;
-      font-family: var(--sans);
-      padding: 9px 11px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      -moz-appearance: textfield;
+    input[type="text"], input[type="number"] {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text); font-size: 13px;
+      font-family: var(--sans); padding: 9px 11px; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s; -moz-appearance: textfield;
     }
-
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-    input:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(57,211,83,0.1);
-    }
-
+    input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(57,211,83,0.1); }
     input::placeholder { color: var(--text-dim); }
 
     .remove-btn {
-      width: 34px; height: 36px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 16px;
-      transition: all 0.15s;
-      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 36px; background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text-dim); cursor: pointer; font-size: 16px;
+      transition: all 0.15s; display: flex; align-items: center; justify-content: center;
     }
-
     .remove-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
     .remove-btn:disabled { opacity: 0.2; cursor: not-allowed; }
     .remove-btn:disabled:hover { border-color: var(--border); color: var(--text-dim); background: transparent; }
 
     .add-btn {
-      width: 100%;
-      margin-top: 6px;
-      padding: 8px;
-      background: transparent;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      color: var(--text-dim);
-      font-size: 12px;
-      font-family: var(--mono);
-      cursor: pointer;
-      transition: all 0.15s;
-      letter-spacing: 0.02em;
+      width: 100%; margin-top: 6px; padding: 8px; background: transparent;
+      border: 1px dashed var(--border); border-radius: var(--radius);
+      color: var(--text-dim); font-size: 12px; font-family: var(--mono);
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em;
     }
-
     .add-btn:hover { border-color: var(--green-dim); color: var(--green); background: var(--green-bg); }
 
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border-dim);
-      margin: 28px 0;
-    }
+    .divider { border: none; border-top: 1px solid var(--border-dim); margin: 28px 0; }
 
-    .loot-block {
-      display: grid;
-      grid-template-columns: 1fr 160px;
-      gap: 16px;
-      align-items: center;
-    }
+    /* LOOT ROW */
+    .loot-block { display: grid; grid-template-columns: 1fr 160px; gap: 16px; align-items: center; }
+    .loot-desc p:first-child { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .loot-desc p:last-child { font-size: 12px; color: var(--text-muted); }
 
-    .loot-desc p:first-child {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 3px;
-    }
+    /* ERRORS */
+    .error { font-size: 12px; font-family: var(--mono); color: var(--red); margin-top: 10px; }
 
-    .loot-desc p:last-child {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .error {
-      font-size: 12px;
-      font-family: var(--mono);
-      color: var(--red);
-      margin-top: 10px;
-    }
-
+    /* CALC BUTTON */
     .calc-btn {
-      width: 100%;
-      margin-top: 24px;
-      padding: 11px;
-      background: var(--green-bg);
-      border: 1px solid var(--green-dim);
-      border-radius: var(--radius);
-      color: var(--green);
-      font-size: 13px;
-      font-family: var(--mono);
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: all 0.2s;
+      width: 100%; margin-top: 24px; padding: 11px;
+      background: var(--green-bg); border: 1px solid var(--green-dim);
+      border-radius: var(--radius); color: var(--green);
+      font-size: 13px; font-family: var(--mono); letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.2s;
     }
+    .calc-btn:hover { background: rgba(57,211,83,0.14); border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
 
-    .calc-btn:hover {
-      background: rgba(57,211,83,0.14);
-      border-color: var(--green);
-      box-shadow: 0 0 12px var(--green-glow);
-    }
-
+    /* RESULTS */
     .results { margin-top: 40px; }
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 24px;
+    /* HUNT STATUS BANNER */
+    .hunt-status {
+      border-radius: var(--radius-lg); padding: 14px 16px;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+      border: 1px solid;
     }
+    .hunt-status.profit { background: var(--green-bg); border-color: var(--green-dim); }
+    .hunt-status.loss   { background: var(--red-bg);   border-color: var(--red-dim); }
+    .hunt-status.even   { background: var(--surface2);  border-color: var(--border); }
+    .status-icon { font-size: 18px; }
+    .status-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .hunt-status.profit .status-title { color: var(--green); }
+    .hunt-status.loss   .status-title { color: var(--red); }
+    .hunt-status.even   .status-title { color: var(--text-muted); }
+    .status-sub { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
 
-    .metric {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-    }
+    /* SUMMARY GRID */
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 24px; }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+    .metric-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+    .metric-value { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--text); }
+    .metric-value.negative { color: var(--red); }
+    .metric-value.positive { color: var(--green); }
 
-    .metric-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 6px;
-    }
-
-    .metric-value {
-      font-family: var(--mono);
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
+    /* PLAYER RESULT */
     .player-result {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 13px 15px;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 6px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
       transition: border-color 0.15s;
     }
-
     .player-result:hover { border-color: var(--surface3); }
+    .pr-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .pr-detail { font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.02em; }
+    .pr-loss-note { font-family: var(--mono); font-size: 10px; color: var(--red); margin-top: 3px; }
 
-    .pr-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 3px;
-    }
-
-    .pr-detail {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 0.02em;
-    }
-
-    .badge {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      padding: 4px 9px;
-      border-radius: var(--radius);
-      white-space: nowrap;
-      letter-spacing: 0.02em;
-    }
-
+    .badge { font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 4px 9px; border-radius: var(--radius); white-space: nowrap; letter-spacing: 0.02em; }
     .badge-receive { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-dim); }
     .badge-pay     { background: var(--red-bg);   color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+    .badge-loss    { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-dim); }
     .badge-even    { background: var(--surface2);  color: var(--text-muted); border: 1px solid var(--border); }
 
-    .transfers-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin: 24px 0 10px;
-    }
-
+    /* TRANSFERS */
+    .transfers-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin: 24px 0 10px; }
     .transfer-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text);
-      padding: 10px 13px;
-      border: 1px solid var(--border-dim);
-      border-radius: var(--radius);
-      margin-bottom: 5px;
-      background: var(--surface);
+      display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text);
+      padding: 10px 13px; border: 1px solid var(--border-dim); border-radius: var(--radius);
+      margin-bottom: 5px; background: var(--surface);
     }
-
     .transfer-arrow { color: var(--text-dim); font-size: 11px; }
+    .transfer-amount { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--green); }
 
-    .transfer-amount {
-      margin-left: auto;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--green);
+    /* LOSS NOTE BOX */
+    .loss-note-box {
+      background: rgba(248,81,73,0.06); border: 1px solid var(--red-dim);
+      border-radius: var(--radius-lg); padding: 12px 14px; margin-top: 20px;
     }
+    .loss-note-box p { font-family: var(--mono); font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+    .loss-note-box p strong { color: var(--red); font-weight: 500; }
 
-    footer {
-      margin-top: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-dim);
-      letter-spacing: 0.06em;
-    }
+    /* ORB SECTION */
+    .orb-grid { display: grid; gap: 6px; }
+    .orb-row { display: grid; grid-template-columns: 1fr 120px; gap: 8px; align-items: center; }
+    .orb-label { font-size: 13px; color: var(--text); }
+    .orb-sublabel { font-size: 11px; color: var(--text-dim); margin-top: 2px; font-family: var(--mono); }
 
-    .dot {
-      width: 6px; height: 6px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 6px var(--green);
+    /* ORB RESULTS */
+    .orb-result-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 6px;
     }
+    .orb-result-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+    .orb-result-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-top: 1px solid var(--border-dim); }
+    .orb-result-name { font-size: 12px; color: var(--text-muted); }
+    .orb-result-val { font-family: var(--mono); font-size: 12px; color: var(--blue); }
+    .orb-remainder { font-family: var(--mono); font-size: 10px; color: var(--yellow); margin-left: 6px; }
+
+    .orb-summary { margin-bottom: 20px; }
+    .orb-summary-header { display: grid; grid-template-columns: 1fr repeat(var(--player-count, 2), 80px); gap: 6px; padding: 8px 15px; }
+    .orb-summary-header span { font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-align: right; }
+    .orb-summary-header span:first-child { text-align: left; }
+    .orb-summary-row { display: grid; grid-template-columns: 1fr repeat(var(--player-count, 2), 80px); gap: 6px; padding: 8px 15px; background: var(--surface); border: 1px solid var(--border-dim); border-radius: var(--radius); margin-bottom: 4px; align-items: center; }
+    .orb-summary-row span { font-family: var(--mono); font-size: 12px; color: var(--blue); text-align: right; }
+    .orb-summary-row span:first-child { font-family: var(--sans); font-size: 12px; color: var(--text-muted); text-align: left; }
+
+    /* FOOTER */
+    footer { margin-top: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.06em; }
+    .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 6px var(--green); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo-row">
-        <div class="logo-icon">⚔</div>
-        <span class="logo-text"><span>tibia</span> / loot-split</span>
-      </div>
-      <h1>Loot Split <em>Calculator</em></h1>
-    </header>
+<div class="container">
+
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">⚔</div>
+      <span class="logo-text"><span>tibia</span> / hunt-calculator</span>
+    </div>
+    <h1>Hunt <em>Calculator</em></h1>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('loot')">// loot split</button>
+    <button class="tab-btn" onclick="switchTab('orbs')">// orb fragments</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ LOOT TAB -->
+  <div id="tab-loot" class="tab-content active">
 
     <p class="section-label">// jogadores</p>
     <div id="players-list"></div>
@@ -370,157 +270,355 @@
 
     <div id="error-msg"></div>
     <button class="calc-btn" onclick="calculate()">→ calcular_split()</button>
-
     <div class="results" id="results" style="display:none;"></div>
 
-    <footer>
-      <div class="dot"></div>
-      feito para tibians
-    </footer>
   </div>
 
-  <script>
-    let players = [
-      { id: 1, name: '', waste: '' },
-      { id: 2, name: '', waste: '' },
-    ];
-    let nextId = 3;
+  <!-- ═══════════════════════════════════════════════ ORBS TAB -->
+  <div id="tab-orbs" class="tab-content">
 
-    function addPlayer() {
-      players.push({ id: nextId++, name: '', waste: '' });
-      render();
+    <p class="section-label">// jogadores para split</p>
+    <div id="orb-player-count-row" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+      <span style="font-size:13px; color:var(--text-muted);">Quantidade de jogadores</span>
+      <input type="number" id="orb-player-count" value="2" min="1" max="20"
+        style="width:70px;" oninput="renderOrbPlayers()" />
+    </div>
+
+    <div id="orb-players-names" style="margin-bottom:20px;"></div>
+
+    <hr class="divider" style="margin-top:0;">
+
+    <p class="section-label">// orb fragments coletados</p>
+    <p style="font-size:12px; color:var(--text-dim); margin-bottom:16px; font-family:var(--mono);">// deixe em branco as orbs que não coletaram</p>
+
+    <div class="orb-grid" id="orb-grid"></div>
+
+    <div id="orb-error-msg"></div>
+    <button class="calc-btn" onclick="calculateOrbs()" style="margin-top:24px;">→ calcular_orbs()</button>
+    <div class="results" id="orb-results" style="display:none; margin-top:40px;"></div>
+
+  </div>
+
+  <footer><div class="dot"></div>Feito por Danillo Taniguhi</footer>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let players = [
+  { id: 1, name: '', waste: '' },
+  { id: 2, name: '', waste: '' },
+];
+let nextId = 3;
+
+const ORB_TYPES = [
+  { key: 'fate',             label: 'Fate Orb Fragments' },
+  { key: 'special_fate',     label: 'Special Fate Orb Fragments' },
+  { key: 'enchant',          label: 'Enchant Orb Fragments' },
+  { key: 'shuffle',          label: 'Shuffle Orb Fragments' },
+  { key: 'cleaner',          label: 'Cleaner Orb Fragments' },
+  { key: 'special_cleaner',  label: 'Special Cleaner Orb Fragments' },
+  { key: 'upgrade',          label: 'Upgrade Orb Fragments' },
+  { key: 'special_upgrade',  label: 'Special Upgrade Orb Fragments' },
+  { key: 'ancient',          label: 'Ancient Orb Fragments' },
+  { key: 'special_ancient',  label: 'Special Ancient Orb Fragments' },
+];
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── LOOT SPLIT ──────────────────────────────────────────────────────────────
+function addPlayer() {
+  players.push({ id: nextId++, name: '', waste: '' });
+  render();
+}
+
+function removePlayer(id) {
+  if (players.length <= 2) return;
+  players = players.filter(p => p.id !== id);
+  render();
+}
+
+function updateField(id, field, val) {
+  const p = players.find(p => p.id === id);
+  if (p) p[field] = val;
+}
+
+function render() {
+  const list = document.getElementById('players-list');
+  list.innerHTML = '';
+  players.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Nome do jogador" value="${p.name}"
+        oninput="updateField(${p.id},'name',this.value)" />
+      <input type="number" placeholder="Waste (gp)" value="${p.waste}" min="0"
+        oninput="updateField(${p.id},'waste',this.value)" />
+      <button class="remove-btn" onclick="removePlayer(${p.id})"
+        ${players.length <= 2 ? 'disabled' : ''} title="Remover">×</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function fmt(n) {
+  return Math.round(Math.abs(n)).toLocaleString('pt-BR') + ' gp';
+}
+
+function calculate() {
+  const errEl = document.getElementById('error-msg');
+  errEl.innerHTML = '';
+
+  const loot = parseFloat(document.getElementById('loot-input').value) || 0;
+  if (loot <= 0) {
+    errEl.innerHTML = '<p class="error">// erro: insira o loot total da hunt</p>';
+    return;
+  }
+
+  const valid = players.filter(p => p.name.trim() !== '');
+  if (valid.length < 2) {
+    errEl.innerHTML = '<p class="error">// erro: adicione pelo menos 2 jogadores com nome</p>';
+    return;
+  }
+
+  const share      = loot / valid.length;
+  const totalWaste = valid.reduce((s, p) => s + (parseFloat(p.waste) || 0), 0);
+  const netProfit  = loot - totalWaste;
+  const isLoss     = netProfit < 0;
+  const isEven     = Math.abs(netProfit) < 1;
+
+  const withBalance = valid.map(p => {
+    const waste   = parseFloat(p.waste) || 0;
+    const balance = share - waste;        // positive = receive, negative = pay
+    const personalPL = (loot / valid.length) - waste;  // individual P&L
+    return { ...p, waste, share, balance, personalPL };
+  });
+
+  // ── status banner
+  let statusHtml = '';
+  if (isEven) {
+    statusHtml = `<div class="hunt-status even"><span class="status-icon">⚖️</span><div><p class="status-title">Hunt empatada</p><p class="status-sub">loot = waste — zerou exato</p></div></div>`;
+  } else if (isLoss) {
+    const lossAmt = Math.abs(netProfit);
+    statusHtml = `<div class="hunt-status loss"><span class="status-icon">💀</span><div><p class="status-title">Hunt no negativo</p><p class="status-sub">prejuízo total de ${lossAmt.toLocaleString('pt-BR')} gp — cada um arca com sua parte</p></div></div>`;
+  } else {
+    statusHtml = `<div class="hunt-status profit"><span class="status-icon">💰</span><div><p class="status-title">Hunt lucrativa</p><p class="status-sub">profit de ${netProfit.toLocaleString('pt-BR')} gp — alguém vai receber</p></div></div>`;
+  }
+
+  // ── summary metrics
+  const profitClass = isLoss ? 'negative' : isEven ? '' : 'positive';
+  let html = statusHtml + `
+    <p class="section-label">// resultado</p>
+    <div class="summary-grid">
+      <div class="metric">
+        <div class="metric-label">Loot total</div>
+        <div class="metric-value">${Math.round(loot).toLocaleString('pt-BR')}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Waste total</div>
+        <div class="metric-value">${Math.round(totalWaste).toLocaleString('pt-BR')}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Profit líquido</div>
+        <div class="metric-value ${profitClass}">${isLoss ? '− ' : isEven ? '' : '+ '}${Math.abs(Math.round(netProfit)).toLocaleString('pt-BR')}</div>
+      </div>
+    </div>
+  `;
+
+  // ── player cards
+  withBalance.forEach(p => {
+    let badgeClass, label;
+    if (isLoss) {
+      // hunt negativa: cada um tem seu P&L individual
+      badgeClass = 'badge-loss';
+      label = `prejuízo: ${fmt(p.personalPL)}`;
+    } else if (p.balance > 1) {
+      badgeClass = 'badge-receive';
+      label = `+ ${fmt(p.balance)}`;
+    } else if (p.balance < -1) {
+      badgeClass = 'badge-pay';
+      label = `− ${fmt(p.balance)}`;
+    } else {
+      badgeClass = 'badge-even';
+      label = 'zerado';
     }
 
-    function removePlayer(id) {
-      if (players.length <= 2) return;
-      players = players.filter(p => p.id !== id);
-      render();
-    }
+    const lossNote = isLoss
+      ? `<p class="pr-loss-note">gastou ${Math.round(p.waste).toLocaleString('pt-BR')} · recebeu ${Math.round(p.share).toLocaleString('pt-BR')} de volta</p>`
+      : '';
 
-    function updateField(id, field, val) {
-      const p = players.find(p => p.id === id);
-      if (p) p[field] = val;
-    }
-
-    function render() {
-      const list = document.getElementById('players-list');
-      list.innerHTML = '';
-      players.forEach(p => {
-        const row = document.createElement('div');
-        row.className = 'player-row';
-        row.innerHTML = `
-          <input type="text" placeholder="Nome do jogador" value="${p.name}"
-            oninput="updateField(${p.id},'name',this.value)" />
-          <input type="number" placeholder="Waste (gp)" value="${p.waste}" min="0"
-            oninput="updateField(${p.id},'waste',this.value)" />
-          <button class="remove-btn" onclick="removePlayer(${p.id})"
-            ${players.length <= 2 ? 'disabled' : ''} title="Remover">×</button>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function fmt(n) {
-      return Math.round(Math.abs(n)).toLocaleString('pt-BR') + ' gp';
-    }
-
-    function calculate() {
-      const errEl = document.getElementById('error-msg');
-      errEl.innerHTML = '';
-
-      const loot = parseFloat(document.getElementById('loot-input').value) || 0;
-      if (loot <= 0) {
-        errEl.innerHTML = '<p class="error">// erro: insira o loot total da hunt</p>';
-        return;
-      }
-
-      const valid = players.filter(p => p.name.trim() !== '');
-      if (valid.length < 2) {
-        errEl.innerHTML = '<p class="error">// erro: adicione pelo menos 2 jogadores com nome</p>';
-        return;
-      }
-
-      const share = loot / valid.length;
-      const totalWaste = valid.reduce((s, p) => s + (parseFloat(p.waste) || 0), 0);
-      const netProfit = loot - totalWaste;
-
-      const withBalance = valid.map(p => {
-        const waste = parseFloat(p.waste) || 0;
-        const balance = share - waste;
-        return { ...p, waste, share, balance };
-      });
-
-      let html = `
-        <p class="section-label">// resultado</p>
-        <div class="summary-grid">
-          <div class="metric">
-            <div class="metric-label">Loot total</div>
-            <div class="metric-value">${Math.round(loot).toLocaleString('pt-BR')}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Waste total</div>
-            <div class="metric-value">${Math.round(totalWaste).toLocaleString('pt-BR')}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Profit líquido</div>
-            <div class="metric-value">${Math.round(netProfit).toLocaleString('pt-BR')}</div>
-          </div>
+    html += `
+      <div class="player-result">
+        <div>
+          <p class="pr-name">${p.name}</p>
+          <p class="pr-detail">share: ${Math.round(share).toLocaleString('pt-BR')} · waste: ${Math.round(p.waste).toLocaleString('pt-BR')}</p>
+          ${lossNote}
         </div>
-      `;
+        <span class="badge ${badgeClass}">${label}</span>
+      </div>
+    `;
+  });
 
-      withBalance.forEach(p => {
-        const badgeClass = p.balance > 0 ? 'badge-receive' : p.balance < 0 ? 'badge-pay' : 'badge-even';
-        const sign = p.balance > 0 ? '+ ' : p.balance < 0 ? '− ' : '';
-        const label = p.balance === 0 ? 'zerado' : sign + fmt(p.balance);
+  // ── transferências (só em hunts lucrativas)
+  if (!isLoss && !isEven) {
+    const receivers = withBalance.filter(p => p.balance > 1).map(p => ({ ...p, rem: p.balance }));
+    const payers    = withBalance.filter(p => p.balance < -1).map(p => ({ ...p, rem: -p.balance }));
+    const transfers = [];
+    let ri = 0, pi = 0;
+    while (ri < receivers.length && pi < payers.length) {
+      const amt = Math.min(receivers[ri].rem, payers[pi].rem);
+      if (amt > 0) transfers.push({ from: payers[pi].name, to: receivers[ri].name, amount: amt });
+      receivers[ri].rem -= amt;
+      payers[pi].rem -= amt;
+      if (receivers[ri].rem < 1) ri++;
+      if (payers[pi].rem < 1) pi++;
+    }
+
+    if (transfers.length > 0) {
+      html += `<p class="transfers-label">// transferências</p>`;
+      transfers.forEach(t => {
         html += `
-          <div class="player-result">
-            <div>
-              <p class="pr-name">${p.name}</p>
-              <p class="pr-detail">
-                share: ${Math.round(share).toLocaleString('pt-BR')} &nbsp;·&nbsp;
-                waste: ${Math.round(p.waste).toLocaleString('pt-BR')}
-              </p>
-            </div>
-            <span class="badge ${badgeClass}">${label}</span>
+          <div class="transfer-item">
+            <span>${t.from}</span>
+            <span class="transfer-arrow">→</span>
+            <span>${t.to}</span>
+            <span class="transfer-amount">${Math.round(t.amount).toLocaleString('pt-BR')} gp</span>
           </div>
         `;
       });
-
-      const receivers = withBalance.filter(p => p.balance > 0).map(p => ({ ...p, rem: p.balance }));
-      const payers    = withBalance.filter(p => p.balance < 0).map(p => ({ ...p, rem: -p.balance }));
-
-      const transfers = [];
-      let ri = 0, pi = 0;
-      while (ri < receivers.length && pi < payers.length) {
-        const amt = Math.min(receivers[ri].rem, payers[pi].rem);
-        if (amt > 0) transfers.push({ from: payers[pi].name, to: receivers[ri].name, amount: amt });
-        receivers[ri].rem -= amt;
-        payers[pi].rem -= amt;
-        if (receivers[ri].rem < 1) ri++;
-        if (payers[pi].rem < 1) pi++;
-      }
-
-      if (transfers.length > 0) {
-        html += `<p class="transfers-label">// transferências</p>`;
-        transfers.forEach(t => {
-          html += `
-            <div class="transfer-item">
-              <span>${t.from}</span>
-              <span class="transfer-arrow">→</span>
-              <span>${t.to}</span>
-              <span class="transfer-amount">${Math.round(t.amount).toLocaleString('pt-BR')} gp</span>
-            </div>
-          `;
-        });
-      }
-
-      const resultsEl = document.getElementById('results');
-      resultsEl.innerHTML = html;
-      resultsEl.style.display = 'block';
-      resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  }
 
-    render();
-  </script>
+  // ── nota de prejuízo
+  if (isLoss) {
+    html += `
+      <div class="loss-note-box">
+        <p>// <strong>hunt no negativo</strong> — não há transferências entre jogadores.<br>
+        Cada um arca com seu próprio prejuízo baseado em quanto gastou de waste<br>
+        vs. quanto recebeu de volta do loot total dividido igualmente.</p>
+      </div>
+    `;
+  }
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.innerHTML = html;
+  resultsEl.style.display = 'block';
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── ORB FRAGMENTS ───────────────────────────────────────────────────────────
+function renderOrbPlayers() {
+  const count = parseInt(document.getElementById('orb-player-count').value) || 2;
+  const container = document.getElementById('orb-players-names');
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:6px;';
+    row.innerHTML = `<input type="text" placeholder="Nome do jogador ${i + 1}"
+      id="orb-player-${i}" style="width:100%;" />`;
+    container.appendChild(row);
+  }
+}
+
+function renderOrbGrid() {
+  const grid = document.getElementById('orb-grid');
+  grid.innerHTML = '';
+  ORB_TYPES.forEach(orb => {
+    const row = document.createElement('div');
+    row.className = 'orb-row';
+    row.innerHTML = `
+      <div>
+        <p class="orb-label">${orb.label}</p>
+      </div>
+      <input type="number" id="orb-${orb.key}" placeholder="qtd." min="0" />
+    `;
+    grid.appendChild(row);
+  });
+}
+
+function calculateOrbs() {
+  const errEl = document.getElementById('orb-error-msg');
+  errEl.innerHTML = '';
+
+  const count = parseInt(document.getElementById('orb-player-count').value) || 2;
+  if (count < 2) {
+    errEl.innerHTML = '<p class="error">// erro: mínimo de 2 jogadores</p>';
+    return;
+  }
+
+  const playerNames = [];
+  for (let i = 0; i < count; i++) {
+    const inp = document.getElementById(`orb-player-${i}`);
+    playerNames.push(inp ? inp.value.trim() || `Jogador ${i + 1}` : `Jogador ${i + 1}`);
+  }
+
+  // collect only orbs with values
+  const filled = ORB_TYPES.map(orb => {
+    const val = document.getElementById(`orb-${orb.key}`)?.value;
+    const qty = val !== '' && val !== null && val !== undefined ? parseInt(val) : null;
+    return { ...orb, qty };
+  }).filter(o => o.qty !== null && !isNaN(o.qty) && o.qty >= 0);
+
+  if (filled.length === 0) {
+    errEl.innerHTML = '<p class="error">// erro: preencha ao menos um tipo de orb fragment</p>';
+    return;
+  }
+
+  // build table: orbs × players
+  let html = `<p class="section-label">// divisão de orbs</p>`;
+
+  // header
+  let headerHtml = `<div class="orb-summary-header" style="--player-count:${count};">
+    <span>Orb Fragment</span>`;
+  playerNames.forEach(n => { headerHtml += `<span>${n}</span>`; });
+  headerHtml += `</div>`;
+  html += headerHtml;
+
+  filled.forEach(orb => {
+    const each      = Math.floor(orb.qty / count);
+    const remainder = orb.qty % count;
+
+    let rowHtml = `<div class="orb-summary-row" style="--player-count:${count};">
+      <span>${orb.label}</span>`;
+
+    for (let i = 0; i < count; i++) {
+      const bonus = i < remainder ? 1 : 0;
+      const total = each + bonus;
+      const remTag = bonus > 0
+        ? `<span class="orb-remainder" title="recebeu +1 do resto">+r</span>`
+        : '';
+      rowHtml += `<span>${total}${remTag}</span>`;
+    }
+    rowHtml += `</div>`;
+    html += rowHtml;
+  });
+
+  // nota sobre resto
+  const hasRemainder = filled.some(o => o.qty % count !== 0);
+  if (hasRemainder) {
+    html += `
+      <div class="loss-note-box" style="margin-top:16px; border-color: var(--yellow-dim); background: var(--yellow-bg);">
+        <p style="color:var(--text-muted);">// <strong style="color:var(--yellow);">+r = resto</strong> — quando a divisão não é exata, os primeiros jogadores da lista
+        recebem +1 fragment. Combina entre vocês quem fica com o resto.</p>
+      </div>
+    `;
+  }
+
+  const resultsEl = document.getElementById('orb-results');
+  resultsEl.innerHTML = html;
+  resultsEl.style.display = 'block';
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+render();
+renderOrbPlayers();
+renderOrbGrid();
+</script>
 </body>
 </html>
